@@ -1,0 +1,33 @@
+import 'package:bookstore_app/auth.dart';
+import 'package:bookstore_app/screens/AuthPage.dart';
+import 'screens/homeScreen.dart';
+import 'package:flutter/material.dart';
+
+class WidgetTree extends StatefulWidget {
+  const WidgetTree({super.key});
+
+  @override
+  State<WidgetTree> createState() => _WidgetTreeState();
+}
+
+class _WidgetTreeState extends State<WidgetTree> {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Auth().authStateChanges,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data?.emailVerified == true) {
+            return Homescreen();
+          }
+          if (snapshot.data?.emailVerified == false) {
+            Auth().signOut;
+          }
+          return WidgetTree();
+        } else {
+          return const AuthPage();
+        }
+      },
+    );
+  }
+}

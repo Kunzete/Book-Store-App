@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "131283858195",
+    "project_id": "bookstore-3bdc6",
+    "storage_bucket": "bookstore-3bdc6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:131283858195:android:a6019d25ccb54cf5bba0e6",
+        "android_client_info": {
+          "package_name": "com.booksto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "131283858195-hav0it5vhlmlkgf09mufs127t4fo7ia5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPE8BOHGp_OzrOva9Q8Q6phgZCpQYXrDk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "131283858195-hav0it5vhlmlkgf09mufs127t4fo7ia5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "131283858195-59uhf05858t2j6g676rkhjfmhvo2r4ro.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bookstoreApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
