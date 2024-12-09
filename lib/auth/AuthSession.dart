@@ -1,6 +1,6 @@
-import 'package:bookstore_app/auth.dart';
+import 'package:bookstore_app/auth/auth.dart';
 import 'package:bookstore_app/screens/AuthPage.dart';
-import 'screens/homeScreen.dart';
+import '../screens/homeScreen.dart';
 import 'package:flutter/material.dart';
 
 class WidgetTree extends StatefulWidget {
@@ -17,13 +17,7 @@ class _WidgetTreeState extends State<WidgetTree> {
       stream: Auth().authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          if (snapshot.data?.emailVerified == true) {
-            return Homescreen();
-          }
-          if (snapshot.data?.emailVerified == false) {
-            Auth().signOut;
-          }
-          return WidgetTree();
+          return Homescreen();
         } else {
           return const AuthPage();
         }

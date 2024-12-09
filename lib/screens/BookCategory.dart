@@ -1,4 +1,4 @@
-import 'package:bookstore_app/auth.dart';
+import 'package:bookstore_app/auth/auth.dart';
 import 'package:bookstore_app/components/etc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

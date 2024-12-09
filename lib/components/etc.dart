@@ -91,23 +91,18 @@ ToastificationItem successToast(String message) {
 }
 
 String getCustomErrorMessage(String errorCode) {
-  if (errorCode == 'invalid-email') {
-    return 'The email address is not valid. Please enter a valid email.';
+  if (errorCode == 'missing-email') {
+    return 'Please enter your email.';
+  } else if (errorCode == 'invalid-credential') {
+    return 'User not found or Password is incorrect!';
   } else if (errorCode == 'email-already-in-use') {
     return 'Email already in use. Please use a different email.';
   } else if (errorCode == 'weak-password') {
     return 'The password is too weak. Please use a strong password.';
-  } else if (errorCode == 'operation-not-allowed') {
-    return 'This user has been disabled. Please contact support.';
   } else if (errorCode == 'password-does-not-meet-requirements') {
     return 'Please use an Uppercase, Symbol, Number in your password. Password must be between 6-12 characters.';
-  } else if (errorCode == 'missing-email') {
-    return 'Please enter your email.';
-  } else if (errorCode == 'invalid-credential') {
-    return 'Password incorrect. Please enter your correct password.';
-  } else if (errorCode == 'user-not-found') {
-    return 'No user exists with these credentials. Please Sign Up.';
-  } else if (errorCode == 'user-disabled') {
+  } else if (errorCode == 'user-disabled' ||
+      errorCode == 'operation-not-allowed') {
     return 'This user has been disabled. Please contact support.';
   } else {
     return 'An unknown error occurred. Please try again.';

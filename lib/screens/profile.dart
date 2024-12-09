@@ -1,12 +1,13 @@
-import 'package:bookstore_app/auth.dart';
+import 'package:bookstore_app/auth/auth.dart';
 import 'package:bookstore_app/components/appBarNormal.dart';
 import 'package:bookstore_app/components/etc.dart';
 import 'package:bookstore_app/screens/editProfile.dart';
-import 'package:bookstore_app/widget_tree.dart';
+import 'package:bookstore_app/auth/AuthSession.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -158,7 +159,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 SizedBox(
-                  height: verticalPadding * 0.8,
+                  height: verticalPadding * 0.5,
                 ),
                 GestureDetector(
                   onTap: () {},
@@ -203,7 +204,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 SizedBox(
-                  height: verticalPadding * 0.8,
+                  height: verticalPadding * 0.5,
                 ),
                 GestureDetector(
                   onTap: () {},
@@ -248,7 +249,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 SizedBox(
-                  height: verticalPadding * 0.8,
+                  height: verticalPadding * 0.5,
                 ),
                 GestureDetector(
                   onTap: () {},
@@ -293,7 +294,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 SizedBox(
-                  height: verticalPadding * 0.8,
+                  height: verticalPadding * 0.5,
                 ),
                 GestureDetector(
                   onTap: () {
@@ -342,6 +343,42 @@ class _ProfileState extends State<Profile> {
               ],
             ),
           ),
+          persistentFooterAlignment: AlignmentDirectional.center,
+          persistentFooterButtons: [
+            TextButton(
+              onPressed: () {
+                PanaraConfirmDialog.show(
+                  context,
+                  title: "Delete account?",
+                  message:
+                      "Are you sure you want to delete your account? Any data you have saved will be lost.",
+                  confirmButtonText: "Confirm",
+                  cancelButtonText: "Cancel",
+                  onTapCancel: () {
+                    Navigator.pop(context);
+                  },
+                  onTapConfirm: () {
+                    Auth().deleteAccount();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WidgetTree(),
+                      ),
+                    );
+                  },
+                  panaraDialogType: PanaraDialogType.error,
+                  barrierDismissible:
+                      false, // optional parameter (default is true)
+                );
+              },
+              child: Text(
+                "Delete Account",
+                style: GoogleFonts.poppins(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

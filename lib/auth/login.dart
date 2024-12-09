@@ -1,8 +1,8 @@
-import 'package:bookstore_app/auth.dart';
+import 'package:bookstore_app/auth/auth.dart';
 import 'package:bookstore_app/components/appBarNormal.dart';
 import 'package:bookstore_app/components/etc.dart';
-import 'package:bookstore_app/screens/register.dart';
-import 'package:bookstore_app/screens/reset_password.dart';
+import 'package:bookstore_app/auth/register.dart';
+import 'package:bookstore_app/auth/reset_password.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -34,6 +34,7 @@ class _LoginState extends State<Login> {
     } on FirebaseAuthException catch (e) {
       String errorMessage = getCustomErrorMessage(e.code);
       errorToast(errorMessage);
+      print(e.code);
     }
   }
 

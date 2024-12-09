@@ -1,8 +1,5 @@
-import 'package:bookstore_app/firebase_options.dart';
-import 'package:bookstore_app/screens/details.dart';
-import 'package:bookstore_app/screens/editProfile.dart';
-import 'package:bookstore_app/screens/profile.dart';
-import 'package:bookstore_app/widget_tree.dart';
+import 'package:bookstore_app/firebase/firebase_options.dart';
+import 'package:bookstore_app/auth/AuthSession.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:toastification/toastification.dart';

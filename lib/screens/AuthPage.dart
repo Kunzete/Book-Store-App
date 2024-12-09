@@ -3,8 +3,8 @@
 import 'dart:async';
 
 import 'package:bookstore_app/components/etc.dart';
-import 'package:bookstore_app/screens/login.dart';
-import 'package:bookstore_app/screens/register.dart';
+import 'package:bookstore_app/auth/login.dart';
+import 'package:bookstore_app/auth/register.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +17,33 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
+  int currentIndex = 0;
+  late Timer _timer;
+  double opacity = 1.0;
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      setState(() {
+        opacity = 0.0;
+      });
+
+      Future.delayed(Duration(milliseconds: 500), () {
+        setState(() {
+          currentIndex = (currentIndex + 1) % pictures.length;
+          opacity = 1.0;
+        });
+      });
+    });
+  }
+
   final List<String> pictures = [
     "assets/images/Gohan Study.jpeg",
     "assets/images/Books.webp",
@@ -116,33 +143,6 @@ class _AuthPageState extends State<AuthPage> {
       ),
     ),
   ];
-
-  int currentIndex = 0;
-  late Timer _timer;
-  double opacity = 1.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
-      setState(() {
-        opacity = 0.0;
-      });
-
-      Future.delayed(Duration(milliseconds: 500), () {
-        setState(() {
-          currentIndex = (currentIndex + 1) % pictures.length;
-          opacity = 1.0;
-        });
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel(); // Cancel the timer when the widget is disposed
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

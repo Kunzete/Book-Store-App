@@ -32,7 +32,7 @@ class AppBarNormal extends AppBar {
           elevation: 0,
           leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context,);
             },
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowLeft02,

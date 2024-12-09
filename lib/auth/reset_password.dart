@@ -1,9 +1,9 @@
 // ignore_for_file: annotate_overrides, overridden_fields
 
-import 'package:bookstore_app/auth.dart';
+import 'package:bookstore_app/auth/auth.dart';
 import 'package:bookstore_app/components/appBarNormal.dart';
 import 'package:bookstore_app/components/etc.dart';
-import 'package:bookstore_app/widget_tree.dart';
+import 'package:bookstore_app/auth/AuthSession.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';

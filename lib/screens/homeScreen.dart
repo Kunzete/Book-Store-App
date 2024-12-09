@@ -1,90 +1,68 @@
 // ignore_for_file: file_names, must_be_immutable, prefer_final_fields
+import 'dart:convert';
+import 'dart:js_interop';
+
 import 'package:bookstore_app/components/bottomAppBar.dart';
 import 'package:bookstore_app/components/etc.dart';
 import 'package:bookstore_app/screens/details.dart';
 import 'package:bookstore_app/screens/profile.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:bookstore_app/services/cart_Icon.dart';
+import 'package:bookstore_app/services/getAllBooks.dart';
+import 'package:bookstore_app/services/getCategorizedBooks.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:bookstore_app/auth.dart';
+import 'package:bookstore_app/auth/auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
-class Homescreen extends StatelessWidget {
-  Homescreen({super.key});
+class Homescreen extends StatefulWidget {
+  const Homescreen({super.key});
 
+  @override
+  State<Homescreen> createState() => _HomescreenState();
+}
+
+class _HomescreenState extends State<Homescreen> {
   final User? user = Auth().currentUser;
+  bool _isLoading = true;
+
+  Future _reloadPage() async {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => Homescreen()),
+      (Route<dynamic> route) => false,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    refreshPage();
+  }
+
+  Future<void> refreshPage() async {
+    setState(() {
+      mounted;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    Future.delayed(Duration(seconds: 12), () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
     var screenHeight = MediaQuery.of(context).size.height;
     var screenWidth = MediaQuery.of(context).size.width;
-
-    List<Container> mostPopular = [
-      Container(
-        height: screenHeight * 0.25,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(18, 0, 0, 0),
-              blurRadius: 8,
-              spreadRadius: 3,
-              offset: Offset(0, 0),
-            )
-          ],
-        ),
-        padding: EdgeInsets.all(12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              height: double.infinity,
-              width: screenWidth * 0.30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: AssetImage(
-                    "assets/images/pfp.jpg",
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            Container(
-              width: screenWidth * 0.3,
-              alignment: Alignment.topLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(
-                    '"In a hole in the ground lived a hobbit. It was not a nasty hole; it was a hobbit-hole, meaning comfort."',
-                    style: GoogleFonts.poppins(
-                      fontSize: screenWidth * 0.025, // Responsive font size
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                  Text(
-                    '-by J.R.R. Tolkien',
-                    style: GoogleFonts.poppins(
-                      fontSize: screenWidth * 0.025, // Responsive font size
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.end,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ];
 
     double circleSize =
         screenHeight < screenWidth ? screenHeight * 0.12 : screenWidth * 0.12;
     double horizontalPadding = screenWidth * 0.04;
     double verticalPadding = screenHeight * 0.03;
+    String baseUrl = 'http://localhost/Bookstore_admin_dashboard/';
+
     return Scaffold(
       backgroundColor: backgroundLight,
       appBar: AppBar(
@@ -137,233 +115,277 @@ class Homescreen extends StatelessWidget {
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Profile(),
+              Skeletonizer(
+                enabled: _isLoading,
+                child: Skeleton.ignore(
+                  child: ShoppingCartIcon(
+                    user: user,
                   ),
-                ),
-                icon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedShoppingCart01,
-                  color: Colors.black,
-                  size: (screenWidth + screenHeight) / 45,
                 ),
               ),
             ],
           ),
         ),
       ),
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SearchBar(
-                leading: HugeIcon(
-                  icon: HugeIcons.strokeRoundedSearch01,
-                  size: 18,
-                  color: secondaryColor,
-                ),
-                backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                shadowColor: WidgetStatePropertyAll(Colors.transparent),
-                side: WidgetStatePropertyAll(
-                  BorderSide(
-                    color: Color.fromARGB(185, 92, 85, 85),
-                    width: 0.63,
+      body: RefreshIndicator.adaptive(
+        onRefresh: _reloadPage,
+        color: primaryColor,
+        child: Container(
+          height: double.infinity,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SearchBar(
+                  leading: HugeIcon(
+                    icon: HugeIcons.strokeRoundedSearch01,
+                    size: 18,
+                    color: secondaryColor,
                   ),
-                ),
-                constraints: BoxConstraints(
-                  minHeight: screenHeight * 0.06,
-                  maxHeight: screenHeight * 0.06,
-                ),
-                padding: WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 0,
+                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                  shadowColor: WidgetStatePropertyAll(Colors.transparent),
+                  side: WidgetStatePropertyAll(
+                    BorderSide(
+                      color: Color.fromARGB(185, 92, 85, 85),
+                      width: 0.63,
+                    ),
                   ),
-                ),
-                elevation: WidgetStatePropertyAll(0),
-                hintText: "Search",
-                hintStyle: WidgetStatePropertyAll(
-                  TextStyle(
-                    color: Color.fromARGB(185, 92, 85, 85),
-                    fontSize: 15,
+                  constraints: BoxConstraints(
+                    minHeight: screenHeight * 0.06,
+                    maxHeight: screenHeight * 0.06,
                   ),
-                ),
-                textStyle: WidgetStatePropertyAll(
-                  TextStyle(
-                    fontSize: 14,
+                  padding: WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: 0,
+                    ),
                   ),
-                ),
-                trailing: <Widget>[
-                  IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedPreferenceVertical,
-                      color: primaryColor,
-                      size: 20,
+                  elevation: WidgetStatePropertyAll(0),
+                  hintText: "Search",
+                  hintStyle: WidgetStatePropertyAll(
+                    TextStyle(
+                      color: Color.fromARGB(185, 92, 85, 85),
+                      fontSize: 15,
                     ),
-                    onPressed: () {},
                   ),
-                ],
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(
-                  vertical: 2,
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 0),
-                child: Column(
-                  children: [
-                    label("Category", "See All >"),
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      alignment: Alignment.bottomCenter,
-                      width: screenWidth,
-                      child: Wrap(
-                        spacing: 5,
-                        runSpacing: 2,
-                        direction: Axis.horizontal,
-                        alignment: WrapAlignment.start,
-                        children: [
-                          categoryButton(
-                            "Education",
-                            screenWidth,
-                          ),
-                          categoryButton(
-                            "Fantasy",
-                            screenWidth,
-                          ),
-                          categoryButton(
-                            "Novels",
-                            screenWidth,
-                          ),
-                          categoryButton(
-                            "Fiction",
-                            screenWidth,
-                          ),
-                          categoryButton(
-                            "Adventure",
-                            screenWidth,
-                          ),
-                          categoryButton(
-                            "Romance",
-                            screenWidth,
-                          ),
-                        ],
-                      ),
+                  textStyle: WidgetStatePropertyAll(
+                    TextStyle(
+                      fontSize: 14,
                     ),
-                    label("Recent Books", "See All >"),
-                    Container(
-                      width: double.infinity,
-                      height: screenHeight * 0.25,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(12),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color.fromARGB(18, 0, 0, 0),
-                            blurRadius: 8,
-                            spreadRadius: 3,
-                            offset: Offset(0, 0),
-                          )
-                        ],
+                  ),
+                  trailing: <Widget>[
+                    IconButton(
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedPreferenceVertical,
+                        color: primaryColor,
+                        size: 20,
                       ),
-                      padding: EdgeInsets.symmetric(
-                        vertical: 15,
-                        horizontal: horizontalPadding,
-                      ),
-                      child: ListView.builder(
-                        itemBuilder: (context, index) {
-                          return bookProgress(
-                            screenWidth,
-                            "Hamlet",
-                            "16 H 42 M",
-                            "H",
-                          );
-                        },
-                        itemCount: 5,
-                        physics: BouncingScrollPhysics(),
-                      ),
-                    ),
-                    categorizeButtonOne(
-                      screenHeight,
-                      "Most Popular",
-                      "For You",
-                    ),
-                    Container(
-                      height: screenHeight * 0.25,
-                      width: double.infinity,
-                      margin: EdgeInsets.symmetric(
-                        vertical: 6,
-                      ),
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Details(),
-                          ),
-                        ),
-                        child: CarouselSlider(
-                          items: mostPopular,
-                          options: CarouselOptions(
-                            autoPlay: true,
-                            enlargeCenterPage: true,
-                            enableInfiniteScroll: true,
-                            padEnds: false,
-                          ),
-                        ),
-                      ),
-                    ),
-                    categorizeButtonOne(screenHeight, "Best Seller", "Latest"),
-                    Container(
-                      height: screenHeight * 0.25,
-                      width: double.infinity,
-                      margin: EdgeInsets.symmetric(
-                        vertical: 6,
-                      ),
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Details(),
-                          ),
-                        ),
-                        child: CarouselSlider(
-                          items: mostPopular,
-                          options: CarouselOptions(
-                            autoPlay: true,
-                            enlargeCenterPage: true,
-                            enableInfiniteScroll: true,
-                            padEnds: false,
-                          ),
-                        ),
-                      ),
-                    ),
-                    label("Explore Authors", "See All >"),
-                    SizedBox(
-                      height: screenHeight * 0.2,
-                      child: ListView.builder(
-                        itemBuilder: (context, index) {
-                          return Authors(
-                            screenHeight,
-                            screenWidth,
-                            "assets/images/pfp.jpg",
-                            "Kenny",
-                          );
-                        },
-                        itemCount: 5,
-                        scrollDirection: Axis.horizontal,
-                      ),
+                      onPressed: () {},
                     ),
                   ],
                 ),
-              ),
-            ],
+                Container(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 2,
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 0),
+                  child: Column(
+                    children: [
+                      label("Category", ""),
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        alignment: Alignment.bottomCenter,
+                        width: screenWidth,
+                        child: Wrap(
+                          spacing: 5,
+                          runSpacing: 2,
+                          direction: Axis.horizontal,
+                          alignment: WrapAlignment.start,
+                          children: [
+                            categoryButton(
+                              "Education",
+                              screenWidth,
+                            ),
+                            categoryButton(
+                              "Fantasy",
+                              screenWidth,
+                            ),
+                            categoryButton(
+                              "Novels",
+                              screenWidth,
+                            ),
+                            categoryButton(
+                              "Fiction",
+                              screenWidth,
+                            ),
+                            categoryButton(
+                              "Adventure",
+                              screenWidth,
+                            ),
+                            categoryButton(
+                              "Romance",
+                              screenWidth,
+                            ),
+                          ],
+                        ),
+                      ),
+                      label("Recent Books", ""),
+                      Container(
+                        width: double.infinity,
+                        height: screenHeight * 0.25,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(12),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color.fromARGB(18, 0, 0, 0),
+                              blurRadius: 8,
+                              spreadRadius: 3,
+                              offset: Offset(0, 0),
+                            )
+                          ],
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: horizontalPadding,
+                        ),
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('books')
+                              .orderBy('createdAt', descending: true)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+
+                            if (snapshot.hasError) {
+                              return Center(
+                                  child: Text('Error: ${snapshot.error}'));
+                            }
+
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return Center(child: Text('No books found.'));
+                            }
+
+                            // Get the list of documents
+                            final books = snapshot.data!.docs;
+                            return Skeletonizer(
+                              enabled: _isLoading,
+                              child: ListView.builder(
+                                itemCount: books.length,
+                                itemBuilder: (context, index) {
+                                  // Access the book data
+                                  final bookData = books[index].data()
+                                      as Map<String, dynamic>;
+                                  String coverImageUrl = Uri.encodeFull(
+                                      '$baseUrl${books[index]['cover_image']}');
+                                  final author =
+                                      bookData['author'] ?? 'Unknown Author';
+                                  final price = double.parse(
+                                      (bookData['price'] ?? 'Unknown Pages'));
+
+                                  return GestureDetector(
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Details(
+                                          documentId: books[index]['id'],
+                                        ),
+                                      ),
+                                    ),
+                                    child: bookProgress(
+                                      screenWidth,
+                                      screenHeight,
+                                      coverImageUrl,
+                                      author,
+                                      price,
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      categorizeButtonOne(
+                        screenHeight,
+                        "Most Popular",
+                        "For You",
+                      ),
+                      Container(
+                        height: screenHeight * 0.35,
+                        width: double.infinity,
+                        margin: EdgeInsets.symmetric(vertical: 6),
+                        child: FutureBuilder<List<String>>(
+                          future: Book().getDocIds(), // Fetch all document IDs
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text('Error: ${snapshot.error}'),
+                              ); // Handle error
+                            } else if (!snapshot.hasData ||
+                                snapshot.data!.isEmpty) {
+                              return Center(
+                                child: Text('No books found.'),
+                              ); // Handle empty data
+                            }
+
+                            // Now we can safely access the data
+                            List<String> docIds = snapshot
+                                .data!; // Assuming docIds is a List<String>
+
+                            return Skeletonizer(
+                              enabled: _isLoading,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: docIds.length,
+                                itemBuilder: (context, index) {
+                                  return GetBooks(
+                                      documentId: docIds[
+                                          index]); // Create GetBooks widget for each document ID
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      categorizeButtonOne(
+                          screenHeight, "Best Seller", "Latest"),
+                      Container(
+                        height: screenHeight * 0.25,
+                        width: double.infinity,
+                        margin: EdgeInsets.symmetric(
+                          vertical: 6,
+                        ),
+                      ),
+                      label("Explore Authors", "See All >"),
+                      SizedBox(
+                        height: screenHeight * 0.2,
+                        child: ListView.builder(
+                          itemBuilder: (context, index) {
+                            return Authors(
+                              screenHeight,
+                              screenWidth,
+                              "assets/images/pfp.jpg",
+                              "Kenny",
+                            );
+                          },
+                          itemCount: 5,
+                          scrollDirection: Axis.horizontal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -461,9 +483,10 @@ class Homescreen extends StatelessWidget {
 
   Container bookProgress(
     double screenWidth,
-    String bookName,
-    String remainingTime,
-    String progress,
+    double screenHeight,
+    String imageUrl,
+    String author,
+    double price,
   ) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 5),
@@ -472,35 +495,48 @@ class Homescreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            width: screenWidth * 0.3, // Responsive width
-            child: Text(
-              bookName,
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
+            width: screenWidth * 0.2,
+            height: screenHeight * 0.1,
+            child: Center(
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
               ),
             ),
           ),
           SizedBox(
-            width: screenWidth * 0.3, // Responsive width
+            width: screenWidth * 0.35, // Responsive width
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Remaining",
+                  "Author",
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Text(remainingTime),
+                Text(author),
               ],
             ),
           ),
           SizedBox(
-            width: screenWidth * 0.1, // Responsive width
-            child: Text(progress),
+            width: screenWidth * 0.2, // Responsive width
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  "Price",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text("${price.toString()}PKR"),
+              ],
+            ),
           ),
         ],
       ),
@@ -537,7 +573,14 @@ class Homescreen extends StatelessWidget {
 
   TextButton categoryButton(String categoryTitle, double screenWidth) {
     return TextButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GetCategorizedBooks(category: categoryTitle),
+          ),
+        );
+      },
       style: TextButton.styleFrom(
         elevation: 0,
         fixedSize: Size.fromHeight(1),
