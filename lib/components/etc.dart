@@ -100,7 +100,7 @@ String getCustomErrorMessage(String errorCode) {
   } else if (errorCode == 'weak-password') {
     return 'The password is too weak. Please use a strong password.';
   } else if (errorCode == 'password-does-not-meet-requirements') {
-    return 'Please use an Uppercase, Symbol, Number in your password. Password must be between 6-12 characters.';
+    return 'Please use an Uppercase, Symbol, Number in your password.';
   } else if (errorCode == 'user-disabled' ||
       errorCode == 'operation-not-allowed') {
     return 'This user has been disabled. Please contact support.';

@@ -21,17 +21,17 @@ class ShoppingCartIcon extends StatelessWidget {
           .doc(user!.uid)
           .snapshots(),
       builder: (context, snapshot) {
-        int itemCount = 0;
-
         if (snapshot.hasError) {
           return Icon(Icons.error); // Handle error
         }
 
-        if (snapshot.hasData && snapshot.data!.exists) {
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-          itemCount =
-              data['cartCount'] ?? 0; // Get the item count from the document
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Container(); // Return empty if no data
         }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        int itemCount =
+            data['cartCount'] ?? 0; // Get the item count from the document
 
         return Stack(
           alignment: Alignment.topRight,

@@ -88,7 +88,7 @@ class _DetailsState extends State<Details> {
           }
           data = snapshot.data!.data() as Map<String, dynamic>;
 
-          String baseUrl = 'http://localhost/Bookstore_admin_dashboard/';
+          String baseUrl = 'http://192.168.10.6/Bookstore_admin_dashboard/';
           String imageUrl = Uri.encodeFull('$baseUrl${data!['cover_image']}');
           return LayoutBuilder(builder: (context, constraints) {
             return Container(

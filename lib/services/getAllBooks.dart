@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:bookstore_app/screens/details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +19,7 @@ class GetBooks extends StatelessWidget {
     double verticalPadding = screenHeight * 0.03;
 
     // Base URL of PHP server
-    String baseUrl = 'http://localhost/Bookstore_admin_dashboard/';
+    String baseUrl = 'http://192.168.10.6/Bookstore_admin_dashboard/';
 
     // Get collection
     CollectionReference books = FirebaseFirestore.instance.collection('books');
@@ -137,15 +139,64 @@ class Book {
   Future<List<String>> getDocIds() async {
     List<String> docIds = []; // Create a local list to store document IDs
 
-    // Fetch documents from the "books" collection
-    QuerySnapshot snapshot =
-        await _db.collection("books").orderBy('rating', descending: true).get();
+    try {
+      // Fetch documents from the "books" collection
+      QuerySnapshot snapshot = await _db
+          .collection("books")
+          .orderBy('rating', descending: true)
+          .limit(10) // Limit to the top 20 documents
+          .get();
 
-    // Extract document IDs
-    for (var document in snapshot.docs) {
-      docIds.add(document.id); // Use document.id to get the document ID
+      // Extract document IDs
+      for (var document in snapshot.docs) {
+        docIds.add(document.id); // Use document.id to get the document ID
+      }
+    } catch (e) {
+      print('Error fetching document IDs: $e');
+      // Handle the error appropriately (e.g., show a message to the user)
     }
 
     return docIds; // Return the list of document IDs
+  }
+
+  Future<List<String>> getDocIdsRand() async {
+    List<String> docIds = []; // Create a local list to store document IDs
+
+    try {
+      // Fetch documents from the "books" collection
+      QuerySnapshot snapshot =
+          await _db.collection("books").orderBy('title').limit(10).get();
+
+      // Extract document IDs
+      for (var document in snapshot.docs) {
+        docIds.add(document.id); // Use document.id to get the document ID
+      }
+    } catch (e) {
+      print('Error fetching document IDs: $e');
+      // Handle the error appropriately (e.g., show a message to the user)
+    }
+
+    return docIds; // Return the list of document IDs
+  }
+
+  Future<List<String>> getAuthor() async {
+    List<String> authors = []; // Create a local list to store author names
+
+    try {
+      // Fetch documents from the "authors" collection
+      QuerySnapshot snapshot = await _db.collection("authors").get();
+
+      // Extract author name from each document
+      for (var document in snapshot.docs) {
+        // Assuming the 'author' field exists in the document
+        String authorName = document['author'] ??
+            'Unknown Author'; // Use a default value if 'author' is not present
+        authors.add(authorName); // Add the author name to the list
+      }
+    } catch (e) {
+      print('Error fetching author names: $e');
+    }
+
+    return authors; // Return the list of author names
   }
 }

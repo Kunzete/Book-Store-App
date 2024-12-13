@@ -1,6 +1,9 @@
+// ignore_for_file: unused_import
+
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:bookstore_app/components/etc.dart';
 import 'package:bookstore_app/screens/BookCategory.dart';
+import 'package:bookstore_app/screens/cart.dart';
 import 'package:bookstore_app/screens/homeScreen.dart';
 import 'package:bookstore_app/screens/profile.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +24,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
       title: "Home",
     ),
     TabItem(
-      icon: Icons.category_outlined,
-      title: "Category",
+      icon: Icons.shopping_cart_outlined,
+      title: "Cart",
     ),
     TabItem(
       icon: Icons.person_outline,
@@ -65,7 +68,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Bookcategory(),
+                  builder: (context) => Cart(),
                 ),
               ).then((_) {
                 setState(() {

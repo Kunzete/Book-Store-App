@@ -1,8 +1,11 @@
 import 'package:bookstore_app/auth/auth.dart';
 import 'package:bookstore_app/components/appBarNormal.dart';
 import 'package:bookstore_app/components/etc.dart';
+import 'package:bookstore_app/screens/cart.dart';
 import 'package:bookstore_app/screens/editProfile.dart';
 import 'package:bookstore_app/auth/AuthSession.dart';
+import 'package:bookstore_app/screens/order_history.dart';
+import 'package:bookstore_app/screens/shipping_address.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -117,52 +120,14 @@ class _ProfileState extends State<Profile> {
                   height: verticalPadding * 2,
                 ),
                 GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    height: screenHeight * 0.1,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: horizontalPadding,
-                      vertical: verticalPadding,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          spreadRadius: 1,
-                          offset: Offset(0, 0),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        HugeIcon(
-                          icon: HugeIcons.strokeRoundedPaypal,
-                          color: primaryColor,
-                          size: 24.0,
-                        ),
-                        SizedBox(
-                          width: horizontalPadding,
-                        ),
-                        Text(
-                          "Payment Method",
-                          style: GoogleFonts.poppins(
-                            color: primaryColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: verticalPadding * 0.5,
-                ),
-                GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderHistory(),
+                      ),
+                    );
+                  },
                   child: Container(
                     height: screenHeight * 0.1,
                     padding: EdgeInsets.symmetric(
@@ -207,7 +172,10 @@ class _ProfileState extends State<Profile> {
                   height: verticalPadding * 0.5,
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ShippingAddress()),
+                  ),
                   child: Container(
                     height: screenHeight * 0.1,
                     padding: EdgeInsets.symmetric(
@@ -252,7 +220,14 @@ class _ProfileState extends State<Profile> {
                   height: verticalPadding * 0.5,
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Cart(),
+                      ),
+                    );
+                  },
                   child: Container(
                     height: screenHeight * 0.1,
                     padding: EdgeInsets.symmetric(

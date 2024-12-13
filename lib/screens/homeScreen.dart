@@ -1,7 +1,4 @@
 // ignore_for_file: file_names, must_be_immutable, prefer_final_fields
-import 'dart:convert';
-import 'dart:js_interop';
-
 import 'package:bookstore_app/components/bottomAppBar.dart';
 import 'package:bookstore_app/components/etc.dart';
 import 'package:bookstore_app/screens/details.dart';
@@ -61,7 +58,7 @@ class _HomescreenState extends State<Homescreen> {
         screenHeight < screenWidth ? screenHeight * 0.12 : screenWidth * 0.12;
     double horizontalPadding = screenWidth * 0.04;
     double verticalPadding = screenHeight * 0.03;
-    String baseUrl = 'http://localhost/Bookstore_admin_dashboard/';
+    String baseUrl = 'http://192.168.10.6/Bookstore_admin_dashboard/';
 
     return Scaffold(
       backgroundColor: backgroundLight,
@@ -233,87 +230,88 @@ class _HomescreenState extends State<Homescreen> {
                       ),
                       label("Recent Books", ""),
                       Container(
-                        width: double.infinity,
-                        height: screenHeight * 0.25,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(12),
+                          width: double.infinity,
+                          height: screenHeight * 0.25,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(12),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color.fromARGB(18, 0, 0, 0),
+                                blurRadius: 8,
+                                spreadRadius: 3,
+                                offset: Offset(0, 0),
+                              )
+                            ],
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color.fromARGB(18, 0, 0, 0),
-                              blurRadius: 8,
-                              spreadRadius: 3,
-                              offset: Offset(0, 0),
-                            )
-                          ],
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          vertical: 15,
-                          horizontal: horizontalPadding,
-                        ),
-                        child: StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('books')
-                              .orderBy('createdAt', descending: true)
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            }
+                          padding: EdgeInsets.symmetric(
+                            vertical: 15,
+                            horizontal: horizontalPadding,
+                          ),
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('books')
+                                .orderBy('createdAt', descending: true)
+                                .limit(5)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }
 
-                            if (snapshot.hasError) {
-                              return Center(
-                                  child: Text('Error: ${snapshot.error}'));
-                            }
+                              if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              }
 
-                            if (!snapshot.hasData ||
-                                snapshot.data!.docs.isEmpty) {
-                              return Center(child: Text('No books found.'));
-                            }
+                              if (!snapshot.hasData ||
+                                  snapshot.data!.docs.isEmpty) {
+                                return Center(child: Text('No books found.'));
+                              }
 
-                            // Get the list of documents
-                            final books = snapshot.data!.docs;
-                            return Skeletonizer(
-                              enabled: _isLoading,
-                              child: ListView.builder(
-                                itemCount: books.length,
-                                itemBuilder: (context, index) {
-                                  // Access the book data
-                                  final bookData = books[index].data()
-                                      as Map<String, dynamic>;
-                                  String coverImageUrl = Uri.encodeFull(
-                                      '$baseUrl${books[index]['cover_image']}');
-                                  final author =
-                                      bookData['author'] ?? 'Unknown Author';
-                                  final price = double.parse(
-                                      (bookData['price'] ?? 'Unknown Pages'));
+                              final books = snapshot.data!.docs;
+                              return Skeletonizer(
+                                enabled: _isLoading,
+                                child: ListView.builder(
+                                  itemCount: books.length,
+                                  itemBuilder: (context, index) {
+                                    final bookData = books[index].data()
+                                        as Map<String, dynamic>;
+                                    String coverImageUrl = Uri.encodeFull(
+                                        '$baseUrl${bookData['cover_image']}');
+                                    final author =
+                                        bookData['author'] ?? 'Unknown Author';
+                                    final price = double.tryParse(
+                                            bookData['price']?.toString() ??
+                                                '0') ??
+                                        0.0;
 
-                                  return GestureDetector(
-                                    onTap: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Details(
-                                          documentId: books[index]['id'],
+                                    return GestureDetector(
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Details(
+                                            documentId: bookData['id'],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    child: bookProgress(
-                                      screenWidth,
-                                      screenHeight,
-                                      coverImageUrl,
-                                      author,
-                                      price,
-                                    ),
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                                      child: bookProgress(
+                                        screenWidth,
+                                        screenHeight,
+                                        coverImageUrl,
+                                        author,
+                                        price,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          )),
                       categorizeButtonOne(
                         screenHeight,
                         "Most Popular",
@@ -347,9 +345,7 @@ class _HomescreenState extends State<Homescreen> {
                                 scrollDirection: Axis.horizontal,
                                 itemCount: docIds.length,
                                 itemBuilder: (context, index) {
-                                  return GetBooks(
-                                      documentId: docIds[
-                                          index]); // Create GetBooks widget for each document ID
+                                  return GetBooks(documentId: docIds[index]);
                                 },
                               ),
                             );
@@ -359,26 +355,76 @@ class _HomescreenState extends State<Homescreen> {
                       categorizeButtonOne(
                           screenHeight, "Best Seller", "Latest"),
                       Container(
-                        height: screenHeight * 0.25,
+                        height: screenHeight * 0.35,
                         width: double.infinity,
-                        margin: EdgeInsets.symmetric(
-                          vertical: 6,
-                        ),
-                      ),
-                      label("Explore Authors", "See All >"),
-                      SizedBox(
-                        height: screenHeight * 0.2,
-                        child: ListView.builder(
-                          itemBuilder: (context, index) {
-                            return Authors(
-                              screenHeight,
-                              screenWidth,
-                              "assets/images/pfp.jpg",
-                              "Kenny",
+                        margin: EdgeInsets.symmetric(vertical: 6),
+                        child: FutureBuilder<List<String>>(
+                          future: Book().getDocIdsRand(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text('Error: ${snapshot.error}'),
+                              ); // Handle error
+                            } else if (!snapshot.hasData ||
+                                snapshot.data!.isEmpty) {
+                              return Center(
+                                child: Text('No books found.'),
+                              );
+                            }
+
+                            // Now we can safely access the data
+                            List<String> docIds = snapshot.data!;
+
+                            return Skeletonizer(
+                              enabled: _isLoading,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: docIds.length,
+                                itemBuilder: (context, index) {
+                                  return GetBooks(documentId: docIds[index]);
+                                },
+                              ),
                             );
                           },
-                          itemCount: 5,
-                          scrollDirection: Axis.horizontal,
+                        ),
+                      ),
+                      label("Explore Authors", ""),
+                      SizedBox(
+                        height: screenHeight * 0.2,
+                        child: FutureBuilder<List<String>>(
+                          future: Book()
+                              .getAuthor(), // This now returns a List<String> of author names
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text('Error: ${snapshot.error}'),
+                              );
+                            } else if (!snapshot.hasData ||
+                                snapshot.data!.isEmpty) {
+                              return Center(
+                                child: Text('No Author found.'),
+                              );
+                            }
+
+                            List<String> authors =
+                                snapshot.data!; // List of author names
+
+                            return Skeletonizer(
+                              enabled: _isLoading,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: authors.length,
+                                itemBuilder: (context, index) {
+                                  return Authors(
+                                    screenHeight,
+                                    screenWidth,
+                                    "assets/images/pfp.jpg", // You can replace this with the actual image if available
+                                    authors[index], // Use the author name
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -522,7 +568,7 @@ class _HomescreenState extends State<Homescreen> {
             ),
           ),
           SizedBox(
-            width: screenWidth * 0.2, // Responsive width
+            width: screenWidth * 0.3, // Responsive width
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
